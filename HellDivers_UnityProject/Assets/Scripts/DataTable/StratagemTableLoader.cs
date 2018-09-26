@@ -64,13 +64,4 @@ public static class StratagemDataLoader
 
         return codes;
     }
-
-    public static void Print(Dictionary<int, StratagemInfo> table)
-    {
-        foreach (KeyValuePair<int, StratagemInfo> d in table)
-        {
-            string info = string.Format("Id:{0}, Titlle:{1}", d.Key, d.Value.title);
-            Debug.Log(info);
-        }
-    }
 }

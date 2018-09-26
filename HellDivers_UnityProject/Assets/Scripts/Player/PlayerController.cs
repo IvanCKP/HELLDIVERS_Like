@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     public float Speed { get { return m_Speed; } set { m_Speed = value; } }
@@ -12,7 +11,6 @@ public class PlayerController : MonoBehaviour
     #region Private Variable
 
     private CharacterController m_Controller;
-    private Animator m_Animator;
     private Transform m_Cam;
     private Vector3 m_CamFoward;
     private Vector3 m_Direction;
@@ -24,7 +22,6 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        m_Animator = this.GetComponent<Player>().Anima;
         m_Controller = this.GetComponent<CharacterController>();
 
         if (Camera.main != null)
@@ -39,7 +36,11 @@ public class PlayerController : MonoBehaviour
         {
             Move();
         }
-        else if (m_Controller.isGrounded == false)
+        else
+        {
+            PlayerAnimationsContorller.m_MoveState = ePlayerAnimationState.ANI_IDLE;
+        }
+        if (m_Controller.isGrounded == false)
         {
             m_Controller.Move(Physics.gravity * Time.deltaTime);
         }
@@ -49,7 +50,34 @@ public class PlayerController : MonoBehaviour
             FaceDirection();
         }
 
-        UpdateAnima();
+        #region DisplayAnimation
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            PlayerAnimationsContorller.m_AttackState = ePlayerAttack.ANI_GUNPLAY;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            PlayerAnimationsContorller.m_AttackState = ePlayerAttack.ANI_THROW;
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            PlayerAnimationsContorller.m_AttackState = ePlayerAttack.ANI_RELOAD;
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            PlayerAnimationsContorller.m_AttackState = ePlayerAttack.ANI_GETHURT;
+        }
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            PlayerAnimationsContorller.m_MoveState = ePlayerAnimationState.ANI_DEATH;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            PlayerAnimationsContorller.m_MoveState = ePlayerAnimationState.ANI_ROLL;
+        }
+
+        #endregion DisplayAnimation
     }
 
     private void Move()
@@ -74,17 +102,26 @@ public class PlayerController : MonoBehaviour
 
         m_Move = m_Direction * m_Speed * Time.deltaTime;
 
-        if (Input.GetButton("Run"))
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
         {
-            m_Move *= 2.0f;
+            PlayerAnimationsContorller.m_MoveState = ePlayerAnimationState.ANI_WALKSHOOT;
+        }
+        else
+        {
+            PlayerAnimationsContorller.m_MoveState = ePlayerAnimationState.ANI_WALK;
+            if (Input.GetButton("Run"))
+            {
+                m_Move *= 2.0f;
+                PlayerAnimationsContorller.m_MoveState = ePlayerAnimationState.ANI_RUN;
+            }
         }
 
         if (m_Controller.isGrounded == false)
         {
             m_Move += Physics.gravity * Time.deltaTime;
         }
-
         this.transform.forward = m_Direction;
+
         m_Controller.Move(m_Move);
     }
 
@@ -105,18 +142,6 @@ public class PlayerController : MonoBehaviour
 
         if (m_Direction.magnitude < 0.1f) return;
         m_Controller.transform.forward = m_Direction;
-    }
-
-    private void UpdateAnima()
-    {
-        float speed = Mathf.Abs(Input.GetAxis("Horizontal")) + Mathf.Abs(Input.GetAxis("Vertical"));
-        m_Animator.SetFloat("speed", speed);
-
-        if (m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Movement"))
-        {
-            float animaSpeed = (Input.GetButton("Run")) ? 1.5f : 1.0f;
-            m_Animator.speed = animaSpeed;
-        }
     }
 
 #if UNITY_EDITOR

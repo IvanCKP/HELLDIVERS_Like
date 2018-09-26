@@ -7,8 +7,8 @@ public class GameMain : MonoBehaviour
 #pragma warning disable
     private AssetManager assetManager = new AssetManager();
     private ResourceManager resourceManager = new ResourceManager();
-    private ObjectPool objectPool;
     private GameData gameData = new GameData();
+    private ObjectPool objectPool;
 #pragma warning disable
 
     private void Awake()
@@ -22,6 +22,9 @@ public class GameMain : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
+        GameObject playerGo = new GameObject();
+        playerGo.name = "Player";
+        playerGo.AddComponent<Player>();
     }
 
     // Update is called once per frame

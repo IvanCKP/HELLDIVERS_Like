@@ -8,6 +8,6 @@ public class PlayerInfo
     public int Rank;
     public float Hp;
     public string DisplayID;
-    public int[] WeaponId;
-    public int[] StratagemId;
+    public List<int> WeaponId;
+    public List<int> StratagemId;
 }
