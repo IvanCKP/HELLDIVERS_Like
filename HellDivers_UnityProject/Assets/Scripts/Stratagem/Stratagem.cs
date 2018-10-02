@@ -7,7 +7,7 @@ public class Stratagem : MonoBehaviour
 {
     #region Properties
 
-    public StratagemInfo Info { get; private set; }
+    public StratagemInfo Info { get { return m_Info; } }
     public EState State { get { return m_eState; } }
     public int UsesCount { get { return m_iUsesCount; } }
     public bool IsCooling { get { return m_isCooling; } }
@@ -18,6 +18,7 @@ public class Stratagem : MonoBehaviour
 
     #region PrivateVariable
 
+    [SerializeField] private StratagemInfo m_Info;
     private Transform m_LaunchPos;
     private GameObject m_Display;
     private Rigidbody m_Rigidbody;
@@ -42,8 +43,8 @@ public class Stratagem : MonoBehaviour
     public bool SetStratagemInfo(int id, Transform launchPos)
     {
         StratagemInfo newInfo = GetInfoFromGameData(id);
-        if (newInfo == null || newInfo == this.Info) return false;
-        this.Info = newInfo;
+        if (newInfo == null || newInfo == m_Info) return false;
+        m_Info = newInfo;
 
         GameObject o = ResourceManager.m_Instance.LoadData(typeof(GameObject), StratagemSystem.DisplayFolder, newInfo.display) as GameObject;
         if (m_Display != o)

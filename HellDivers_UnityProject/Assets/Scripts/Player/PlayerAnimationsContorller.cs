@@ -34,7 +34,7 @@ public enum ePlayerAnyState
 
 public class PlayerAnimationsContorller : MonoBehaviour
 {
-    private Animator m_Animator;
+    [SerializeField] private Animator m_Animator;
     public static ePlayerAnimationState m_MoveState;
     public static ePlayerAttack m_AttackState;
     public static ePlayerAnyState m_AnyState;
@@ -43,7 +43,7 @@ public class PlayerAnimationsContorller : MonoBehaviour
     private Vector3 m_Direction;
     private float m_Right;
     private float m_Forward;
-    float cSpeed = 0f;
+    private float cSpeed = 0f;
 
     private void Start()
     {
@@ -51,8 +51,9 @@ public class PlayerAnimationsContorller : MonoBehaviour
         {
             m_Cam = Camera.main.transform;
         }
-        m_Animator = this.GetComponent<Animator>();
-        //m_Animator = this.GetComponent<Player>().Anima;
+
+        if (m_Animator == null) m_Animator = this.GetComponent<Player>().Anima;
+
         m_AttackState = ePlayerAttack.ANI_GUNPLAY;
         m_AnyState = ePlayerAnyState.ANI_IDLE;
     }
@@ -100,7 +101,6 @@ public class PlayerAnimationsContorller : MonoBehaviour
 
     private void DisplayMoveState()
     {
-        
         float minSpeed = 0f;
         float maxSpeed = 2f;
         float addSpeed = 5f;
@@ -108,7 +108,7 @@ public class PlayerAnimationsContorller : MonoBehaviour
         if (cSpeed > 2) cSpeed = maxSpeed;
         if (cSpeed < 0) cSpeed = minSpeed;
 
-        if(m_MoveState == ePlayerAnimationState.ANI_TURNRIGHT90)
+        if (m_MoveState == ePlayerAnimationState.ANI_TURNRIGHT90)
         {
             m_Animator.SetBool("bTurn", true);
             m_Animator.SetFloat("Turn", 0);
@@ -121,7 +121,7 @@ public class PlayerAnimationsContorller : MonoBehaviour
         }
         else if (m_MoveState == ePlayerAnimationState.ANI_TURNLEFT90)
         {
-            m_Animator.SetBool("bTurn",true);
+            m_Animator.SetBool("bTurn", true);
             m_Animator.SetFloat("Turn", 1);
             m_Animator.SetBool("bTurn", false);
         }
@@ -190,5 +190,4 @@ public class PlayerAnimationsContorller : MonoBehaviour
             m_Animator.SetBool("WalkShoot", false);
         }
     }
-
 }

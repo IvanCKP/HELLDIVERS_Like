@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class GameMain : MonoBehaviour
 {
+    /// <summary>
+    /// Testing player info.
+    /// </summary>
+    public PlayerInfo m_playerInfo;
+
 #pragma warning disable
     private AssetManager assetManager = new AssetManager();
     private ResourceManager resourceManager = new ResourceManager();
@@ -22,17 +27,11 @@ public class GameMain : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
-        PlayerInfo playerInfo = new PlayerInfo()
+        if (m_playerInfo != null)
         {
-            Rank = 1,
-            DisplayID = "ch01",
-            Hp = 100,
-            WeaponId = new List<int> { 1 },
-            StratagemId = new List<int> { 1, 1 }
-        };
-
-        GameObject playerGo = new GameObject("Player", typeof(Player), typeof(Weapon_Battle), typeof(StratagemController));
-        playerGo.GetComponent<Player>().Info = playerInfo;
+            GameObject playerGo = new GameObject("Player", typeof(Player));
+            playerGo.GetComponent<Player>().Info = m_playerInfo;
+        }
     }
 
     // Update is called once per frame
