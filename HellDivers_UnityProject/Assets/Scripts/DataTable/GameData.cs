@@ -18,25 +18,19 @@ public class GameData
 
     #endregion Tables
 
-    public GameData()
+    public void Init()
     {
+        if (m_Instance == null) m_Instance = this;
+
         StratagemTable = new Dictionary<int, StratagemInfo>();
         WeaponInfoTable = new Dictionary<int, WeaponInfo>();
+
+        LoadGameData();
     }
 
-    public void LoadGameData()
+    private void LoadGameData()
     {
-        if (m_Instance == null)
-        {
-            m_Instance = this;
-        }
-        else return;
-
-        #region Init Tables
-
         StratagemTable = StratagemDataLoader.LoadData("Table/StratagemTable");
         WeaponInfoTable = WeaponInfoLoader.LoadData("Table/WeaponInfoTable");
-
-        #endregion Init Tables
     }
 }

@@ -140,13 +140,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0cca8a694dec4c4cbf874321d735dc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_playerInfo:
-    Name: TestPlayer
-    Rank: 0
-    Hp: 100
-    DisplayID: ch00
-    WeaponId: 01000000
-    StratagemId: 01000000
+  m_PlayerData:
+    username: 
+    nickname: 
+    rank: 0
+    totalMissionFought: 0
+    totalMissionWon: 0
+    totalDeaths: 0
+    totalShotsFired: 0
+    totalEnemiesKilled: 0
+    weapons: 
+    stratagems: 01000000
 --- !u!4 &858686616
 Transform:
   m_ObjectHideFlags: 0
@@ -321,8 +325,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1240423554}
-  m_LocalRotation: {x: 0.27059805, y: -0.6532815, z: 0.27059805, w: 0.6532815}
-  m_LocalPosition: {x: 7.6, y: 7.6, z: -0}
+  m_LocalRotation: {x: 0.3310192, y: -0.36281985, z: 0.13968205, w: 0.8598122}
+  m_LocalPosition: {x: 6.6329594, y: 7.3486733, z: -6.2719536}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -339,14 +343,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85102083b8e55624e924952cac749e3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fPosX: 0
   m_fPosY: 10
-  m_fPosZ: -7.5
   m_fRotX: 60
-  m_fRotY: 0
-  m_fRotZ: 0
-  K: 0
-  L: 0
+  m_fWalkCamMove: 0
+  m_fRunCamMove: 0
+  m_CamLerp: 0
   m_Player: {fileID: 0}
 --- !u!1 &1874038981
 GameObject:

@@ -9,6 +9,11 @@ public class Stratagem : MonoBehaviour
     #region Properties
 
     /// <summary>
+    /// Set the transform root for launch postion.
+    /// </summary>
+    public Transform LaunchPos { get { return m_LaunchPos; } set { m_LaunchPos = value; } }
+
+    /// <summary>
     /// The info is used to initilize the stratagem.
     /// </summary>
     public StratagemInfo Info { get { return m_Info; } }
@@ -19,22 +24,22 @@ public class Stratagem : MonoBehaviour
     public eState State { get { return m_eState; } }
 
     /// <summary>
-    /// Represention of this has been used how many times.
+    /// Represention the number of how many times has been used.
     /// </summary>
     public int UsesCount { get { return m_UsesCount; } }
 
     /// <summary>
-    /// Is the stratagem cooling down.
+    /// Is the stratagem cooling down ?
     /// </summary>
     public bool IsCooling { get { return m_IsCooling; } }
 
     /// <summary>
-    /// The timer of CD time. It start when do Throw.
+    /// The timer of CoolDown time. It start when do Throw.
     /// </summary>
     public float CoolTimer { get { return m_CoolTimer; } }
 
     /// <summary>
-    /// The timer of Activatoin. It start when do Land on "terrain"
+    /// The timer of Activatoin. It start when do Land on "terrain".
     /// </summary>
     public float ActTimer { get { return m_ActivationTimer; } }
 
@@ -66,32 +71,50 @@ public class Stratagem : MonoBehaviour
     /// <returns></returns>
     public bool SetStratagemInfo(int id, Transform launchPos)
     {
-        StratagemInfo newInfo = GetInfoFromGameData(id);
-        if (newInfo == null || newInfo == m_Info) return false;
-        m_Info = newInfo;
+        StratagemInfo newInfo;
+        if (TryGetInfoFromGameData(id, out newInfo) == false) return false;
 
-        GameObject o = ResourceManager.m_Instance.LoadData(typeof(GameObject), StratagemSystem.DisplayFolder, newInfo.display) as GameObject;
-        if (m_Display != o)
+        this.gameObject.name = string.Format("Stratagem {0}", m_Info.title);
+
+        if (newInfo.display != m_Info.display)
         {
-            if (o == null) o = StratagemSystem.DefaultDisplay;
+            GameObject go;
 
-            DestroyImmediate(m_Display);
-            m_Display = Instantiate(o, this.transform.position, Quaternion.identity, this.transform);
-            m_Animator = m_Display.GetComponent<Animator>();
+            if (ResourceManager.m_Instance == null)
+            {
+                Debug.LogWarningFormat("Stratagem Warning ({0}) : ResourcesManager doesn't exist, Using Resource.Load()", this.gameObject.name);
+                go = Resources.Load(string.Format("{0}/{1}", StratagemSystem.DisplayFolder, newInfo.display)) as GameObject;
+            }
+            else
+            {
+                go = ResourceManager.m_Instance.LoadData(typeof(GameObject), StratagemSystem.DisplayFolder, newInfo.display) as GameObject;
+            }
+
+            if (m_Display != go)
+            {
+                if (go == null) go = StratagemSystem.DefaultDisplay;
+
+                DestroyImmediate(m_Display);
+                m_Display = Instantiate(go, this.transform.position, Quaternion.identity, this.transform);
+                m_Animator = m_Display.GetComponent<Animator>();
+            }
         }
 
         m_LaunchPos = launchPos;
         this.transform.parent = m_LaunchPos;
         this.transform.localPosition = Vector3.zero;
+        this.transform.localEulerAngles = Vector3.zero;
 
-        Reset();
+        newInfo.CopyTo(m_Info);
+        ResetState();
         return true;
     }
 
-    /// <summary>
-    /// Reset the (State = Standby) & (Timers = 0).
-    /// </summary>
-    private void Reset()
+    /*----------------------------------------------
+     * Reset the (State = Standby) & (Timers = 0). *
+    -----------------------------------------------*/
+
+    private void ResetState()
     {
         m_UsesCount = 0;
         m_CoolTimer = 0.0f;
@@ -100,25 +123,31 @@ public class Stratagem : MonoBehaviour
         StopAllCoroutines();
     }
 
-    /// <summary>
-    /// Get stratagem info by id key which is in the gamedata.stratagem tables. If it does not exist return null.
-    /// </summary>
-    /// <param name="id">The id key which in the stratagem  table</param>
-    /// <returns></returns>
-    private StratagemInfo GetInfoFromGameData(int id)
+    /*--------------------------------------------------------------------------
+     * Get stratagem info by id key which is in the gamedata.stratagem tables. *
+     * If it does not exist return null.                                       *
+    ---------------------------------------------------------------------------*/
+
+    private bool TryGetInfoFromGameData(int id, out StratagemInfo getInfo)
     {
         if (GameData.Instance.StratagemTable.ContainsKey(id) == false)
         {
             Debug.LogErrorFormat("Stratagem Error : Can't found ID : [{0}] from game data", id);
-            return null;
+            getInfo = null;
+            return false;
         }
-
-        return GameData.Instance.StratagemTable[id];
+        getInfo = GameData.Instance.StratagemTable[id];
+        return true;
     }
 
     #endregion Initializer
 
     #region MonoBehaviour
+
+    private void Awake()
+    {
+        m_Info = new StratagemInfo();
+    }
 
     // Use this for initialization
     private void Start()
@@ -148,6 +177,7 @@ public class Stratagem : MonoBehaviour
 
         this.transform.parent = m_LaunchPos;
         this.transform.localPosition = Vector3.zero;
+        this.transform.localEulerAngles = Vector3.zero;
         m_Animator.SetTrigger("Start");
 
         m_eState = eState.Ready;
@@ -157,6 +187,7 @@ public class Stratagem : MonoBehaviour
     /// Add force to this gameobject for throw it out.
     /// Translate to Throw out state.
     /// </summary>
+    /// <param name="force">Force for throw it out use relative force</param>
     public void Throw(Vector3 force)
     {
         if (IsCooling || State != eState.Ready) return;
@@ -182,7 +213,7 @@ public class Stratagem : MonoBehaviour
     #region Finite State Machine
 
     /// <summary>
-    /// Representation the stratagem object current statement.
+    /// Representation of the stratagem object current statement.
     /// </summary>
     public enum eState
     {

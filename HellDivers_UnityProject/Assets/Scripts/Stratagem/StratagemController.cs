@@ -4,76 +4,160 @@ using UnityEngine;
 
 public class StratagemController : MonoBehaviour
 {
-    [SerializeField] private List<Stratagem> m_Stratagems;
+    #region Define Inputs
+
+    private string m_InputStartCode = "Stratagem";
+    private string m_InputVertical = "Vertical";
+    private string m_InputHorizontal = "Horizontal";
+    private string m_InputThrow = "Fire1";
+
+    #endregion Define Inputs
+
+    #region Properties
+
+    public Stratagem CurrentStratagem { get { return m_CurrentStratagem; } }
+    public List<Stratagem> Stratagems { get { return m_Stratagems; } }
+
+    #endregion Properties
+
+    #region Private Variable
+
+    [SerializeField] private List<Stratagem> m_Stratagems = new List<Stratagem>();
+
+    // Current actvating stratagem.
     private Stratagem m_CurrentStratagem;
 
-    #region MonoBehaviour
+    private Vector3 m_Force = new Vector3(0.0f, 100.0f, 400.0f);
 
-    // Use this for initialization
-    private void Start()
-    {
-        Player p = GetComponent<Player>();
-
-        // Init form player info.
-        if (p.Info.StratagemId != null)
-        {
-            m_Stratagems = new List<Stratagem>();
-
-            for (int i = 0; i < p.Info.StratagemId.Count; i++)
-            {
-                // Creat stratagem with player info.
-                AddNewStratagemObject(p.Info.StratagemId[i], p.Parts.RightHand);
-            }
-        }
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            if (m_CurrentStratagem != null)
-            {
-                Vector3 force = new Vector3(0.0f, 100.0f, 400.0f);
-                m_CurrentStratagem.Throw(force);
-                m_CurrentStratagem = null;
-            }
-        }
-
-        if (Input.GetButtonDown("Stratagem"))
-        {
-            StartCoroutine(CheckInputCode());
-        }
-        else if (Input.GetButtonUp("Stratagem"))
-        {
-            StopCoroutine(CheckInputCode());
-        }
-    }
-
-    #endregion MonoBehaviour
+    #endregion Private Variable
 
     #region Public Function
 
     /// <summary>
-    /// Add a stratagem object by id key which is in the gamedata.stratagem table.
+    /// Add a stratagem by id key.
     /// If the id already in the controller will be pass.
     /// </summary>
-    /// <param name="id">The id key which is in the gamedata.stratagem table.</param>
+    /// <param name="id">The id key which in the gamedata.stratagem table.</param>
     /// <param name="launchPos">The spawn transform root.</param>
-    public void AddNewStratagemObject(int id, Transform launchPos)
+    public bool AddStratagem(int id, Transform launchPos)
     {
         for (int i = 0; i < m_Stratagems.Count; i++)
         {
-            if (m_Stratagems[i].Info.id == id) return;
+            if (m_Stratagems[i].Info.id == id) return false;
         }
 
-        GameObject go = new GameObject(string.Format("Stratagem ({0})", id));
+        GameObject go = new GameObject("Stratagem");
         Stratagem s = go.AddComponent<Stratagem>();
         s.SetStratagemInfo(id, launchPos);
         m_Stratagems.Add(s);
+        return true;
+    }
+
+    /// <summary>
+    /// Add a multi stratagems by id key.
+    /// If the id already in the controller will be pass.
+    /// </summary>
+    /// <param name="ids">The id key which in the gamedata.stratagem table.</param>
+    /// <param name="launchPos">The spawn transform root.</param>
+    public void AddStratagems(int[] ids, Transform launchPos)
+    {
+        foreach (int id in ids)
+        {
+            AddStratagem(id, launchPos);
+        }
+    }
+
+    /// <summary>
+    /// Remove the stratagem by index.
+    /// </summary>
+    /// <param name="index">Index of the stratagems</param>
+    /// <returns></returns>
+    public bool RemoveStratagemAt(int index)
+    {
+        Stratagem target = null;
+        if (index < 0 || index >= m_Stratagems.Count) return false;
+
+        target = m_Stratagems[index];
+        m_Stratagems.RemoveAt(index);
+
+        DestroyImmediate(target.gameObject);
+        return true;
+    }
+
+    /// <summary>
+    /// Remove the stratagem by index.
+    /// </summary>
+    /// <param name="id">The id key which in the gamedata.stratagem table.</param>
+    /// <returns>If remove succeeful return true</returns>
+    public bool RemoveStratagem(int id)
+    {
+        Stratagem target = null;
+        for (int i = 0; i < m_Stratagems.Count; i++)
+        {
+            if (m_Stratagems[i].Info.id == id)
+            {
+                target = m_Stratagems[i];
+                break;
+            }
+        }
+
+        if (target == null) return false;
+
+        m_Stratagems.Remove(target);
+        DestroyImmediate(target.gameObject);
+
+        return false;
+    }
+
+    /// <summary>
+    /// Clean up all stratagems in the controller.
+    /// </summary>
+    public void Clear()
+    {
+        if (m_Stratagems.Count <= 0) return;
+
+        for (int i = 0; i < m_Stratagems.Count; i++)
+        {
+            if (m_Stratagems[i] != null)
+            {
+                DestroyImmediate(m_Stratagems[i].gameObject);
+            }
+        }
+
+        m_Stratagems.Clear();
+        m_CurrentStratagem = null;
     }
 
     #endregion Public Function
+
+    #region MonoBehaviour
+
+    // Update is called once per frame
+    private void Update()
+    {
+        if (m_CurrentStratagem != null)
+        {
+            if (Input.GetButtonDown(m_InputThrow))
+            {
+                m_CurrentStratagem.Throw(m_Force);
+                m_CurrentStratagem = null;
+            }
+        }
+
+        if (m_Stratagems.Count > 0)
+        {
+            if (Input.GetButtonDown(m_InputStartCode))
+            {
+                StartCoroutine(CheckInputCode());
+            }
+            else if (Input.GetButtonUp(m_InputStartCode))
+            {
+                StopCoroutine(CheckInputCode());
+            }
+        }
+    }
+
+    #endregion MonoBehaviour
 
     #region Check Input Code
 
@@ -94,6 +178,8 @@ public class StratagemController : MonoBehaviour
                 _Open.Add(s);
         }
 
+        if (_Open.Count <= 0) yield break;
+
         int inputCount = 0;
         StratagemInfo.eCode? input = null;
         while (_Open.Count > 0)
@@ -104,9 +190,9 @@ public class StratagemController : MonoBehaviour
 
             for (int i = 0; i < _Open.Count; i++)
             {
-                if (_Open[i].Info.code[inputCount - 1] == input)
+                if (_Open[i].Info.codes[inputCount - 1] == input)
                 {
-                    if (_Open[i].Info.code.Length == inputCount)
+                    if (_Open[i].Info.codes.Length == inputCount)
                     {
                         m_CurrentStratagem = _Open[i];
                         m_CurrentStratagem.GetReady();
@@ -126,10 +212,10 @@ public class StratagemController : MonoBehaviour
 
     private StratagemInfo.eCode? GetInputCode()
     {
-        if (Input.GetAxisRaw("Vertical") > 0) { return StratagemInfo.eCode.Up; }
-        else if (Input.GetAxisRaw("Vertical") < 0) { return StratagemInfo.eCode.Down; }
-        else if (Input.GetAxisRaw("Horizontal") < 0) { return StratagemInfo.eCode.Left; }
-        else if (Input.GetAxisRaw("Horizontal") > 0) { return StratagemInfo.eCode.Right; }
+        if (Input.GetAxisRaw(m_InputVertical) > 0) { return StratagemInfo.eCode.Up; }
+        else if (Input.GetAxisRaw(m_InputVertical) < 0) { return StratagemInfo.eCode.Down; }
+        else if (Input.GetAxisRaw(m_InputHorizontal) < 0) { return StratagemInfo.eCode.Left; }
+        else if (Input.GetAxisRaw(m_InputHorizontal) > 0) { return StratagemInfo.eCode.Right; }
         else { return null; }
     }
 

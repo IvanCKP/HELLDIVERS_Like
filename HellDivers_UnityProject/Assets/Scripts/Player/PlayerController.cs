@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerAnimationsContorller))]
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     #region Private Variable
+
     private CharacterController m_Controller;
     private Transform m_Cam;
     private Vector3 m_CamForward;
@@ -13,16 +16,19 @@ public class PlayerController : MonoBehaviour
     private Vector3 m_Direction;
     private Ray m_MouseRay;
     private RaycastHit m_MouseHit;
-    private PlayerAnimationsContorller PAC;
-    #endregion Private Variable
+    private PlayerAnimationsContorller m_PAC;
 
     private bool bRun = false;
     private bool bInBattle = false;
     private bool bAttack = false;
 
+    #endregion Private Variable
+
+    #region MonoBehaviour
+
     private void Start()
     {
-        PAC = this.GetComponent<PlayerAnimationsContorller>();
+        m_PAC = this.GetComponent<PlayerAnimationsContorller>();
         m_Controller = this.GetComponent<CharacterController>();
 
         if (Camera.main != null)
@@ -30,16 +36,20 @@ public class PlayerController : MonoBehaviour
             m_Cam = Camera.main.transform;
         }
     }
+
     private void FixedUpdate()
     {
         Move();
     }
 
+    #endregion MonoBehaviour
+
+    #region Character Behaviour
+
     private void Move()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
-
 
         if (m_Cam != null)
         {
@@ -69,7 +79,7 @@ public class PlayerController : MonoBehaviour
         }
         else bInBattle = false;
 
-        PAC.Move(m_Move, m_Direction, bRun, bInBattle, bAttack);
+        m_PAC.Move(m_Move, m_Direction, bRun, bInBattle, bAttack);
 
         if (m_Controller.isGrounded == false)
         {
@@ -94,7 +104,11 @@ public class PlayerController : MonoBehaviour
         if (m_Direction.magnitude < 0.1f) return;
         if (m_Direction.magnitude > 1) m_Direction.Normalize();
     }
+
+    #endregion Character Behaviour
+
 #if UNITY_EDITOR
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;

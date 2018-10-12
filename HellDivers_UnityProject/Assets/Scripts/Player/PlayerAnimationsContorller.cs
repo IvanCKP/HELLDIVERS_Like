@@ -34,19 +34,17 @@ public enum ePlayerAnyState
 
 public class PlayerAnimationsContorller : MonoBehaviour
 {
+    public Animator Animator { get { return m_Animator; } set { m_Animator = value; } }
+
+    private Animator m_Animator;
     private float m_TurnAmount;
     private float m_ForwardAmount;
-    private Animator m_Animator;
     private float m_BattleRight;
     private float m_BattleForward;
 
-    private void Start()
+    private void Awake()
     {
         m_Animator = this.GetComponent<Animator>();
-        if (m_Animator == null)
-        {
-            m_Animator = this.GetComponent<Player>().Anima;
-        }
     }
 
     public void Move(Vector3 move, Vector3 direction, bool run, bool inBattle, bool attack)
@@ -78,7 +76,7 @@ public class PlayerAnimationsContorller : MonoBehaviour
     private void ApplyExtraTurnRotation()
     {
         float turnSpeed = Mathf.Lerp(180f, 360f, m_ForwardAmount);
-        transform.Rotate(0, m_TurnAmount * turnSpeed * Time.deltaTime, 0);
+        transform.Rotate(0, m_TurnAmount * turnSpeed * 3f * Time.deltaTime, 0);
     }
 
     private void UpdateAnimator(Vector3 move, bool inBattle, bool attack)

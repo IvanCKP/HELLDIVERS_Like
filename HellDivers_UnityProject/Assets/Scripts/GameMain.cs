@@ -7,43 +7,34 @@ public class GameMain : MonoBehaviour
     /// <summary>
     /// Testing player info.
     /// </summary>
-    public PlayerInfo m_playerInfo;
+    public PlayerInfo m_PlayerData;
 
 #pragma warning disable
     private AssetManager assetManager = new AssetManager();
     private ResourceManager resourceManager = new ResourceManager();
     private GameData gameData = new GameData();
-    private ObjectPool objectPool;
+    private ObjectPool objectPool = new ObjectPool();
 #pragma warning disable
 
     private void Awake()
     {
-        objectPool = this.gameObject.AddComponent<ObjectPool>();
+        objectPool.Init();
         assetManager.Init();
         resourceManager.Init();
-        gameData.LoadGameData();
+        gameData.Init();
     }
 
     // Use this for initialization
     private void Start()
     {
-        AddPlayer(m_playerInfo);
+        if (m_PlayerData != null)
+        {
+            PlayerCreater.CreatMainPlayer(m_PlayerData);
+        }
     }
 
     // Update is called once per frame
     private void Update()
     {
-    }
-
-    public bool AddPlayer(PlayerInfo playerInfo)
-    {
-        if (playerInfo == null) return false;
-
-        GameObject playerGo = Resources.Load("Characters/Ch01/ch01") as GameObject;
-        playerGo = Instantiate(playerGo);
-        Player p = playerGo.AddComponent<Player>();
-        p.Init(playerInfo);
-
-        return true;
     }
 }

@@ -41,7 +41,7 @@ public static class StratagemDataLoader
                     rank = int.Parse(colum[1]),
                     title = colum[2],
                     type = (StratagemInfo.eType)Enum.Parse(typeof(StratagemInfo.eType), colum[3]),
-                    code = _GetCodes(colum[4]),
+                    codes = _GetCodes(colum[4]),
                     uses = int.Parse(colum[5]),
                     cooldown = float.Parse(colum[6]),
                     activation = float.Parse(colum[7]),

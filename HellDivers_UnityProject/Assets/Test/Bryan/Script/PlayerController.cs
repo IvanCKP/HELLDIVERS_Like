@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HELLDIVERS
+namespace Bryan.Test
 {
+    [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour
     {
@@ -32,7 +33,7 @@ namespace HELLDIVERS
         // Use this for initialization
         private void Start()
         {
-            m_Animator = this.GetComponent<Player>().Anima;
+            m_Animator = this.GetComponent<Animator>();
             m_Controller = this.GetComponent<CharacterController>();
 
             if (Camera.main != null)

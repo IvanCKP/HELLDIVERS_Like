@@ -1,44 +1,56 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//[RequireComponent(typeof(Weapon_Battle))]
 [RequireComponent(typeof(StratagemController))]
-[RequireComponent(typeof(Weapon_Battle))]
 [RequireComponent(typeof(PlayerAnimationsContorller))]
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
-    public PlayerInfo Info { get; set; }
-    public PlayerParts Parts { get; set; }
-    public GameObject Display { get; private set; }
-    public Animator Anima { get; private set; }
+    #region Private Variable
+
+#pragma warning disable
+    private PlayerInfo m_Data;
+    private PlayerParts m_Parts;
+    private PlayerController m_PlayerController;
+    private StratagemController m_StratagemController;
+    //private Weapon_Battle m_WeapoonBattle;
+#pragma warning disable
+
+    #endregion Private Variable
+
+    public void Initialize(PlayerInfo data)
+    {
+        data.CopyTo(m_Data);
+
+        if (m_StratagemController.Stratagems.Count > 0) m_StratagemController.Clear();
+        m_StratagemController.AddStratagems(m_Data.stratagems.ToArray(), m_Parts.RightHand);
+    }
+
+    #region MonoBehaviour
 
     private void Awake()
     {
         this.tag = "Player";
-    }
-
-    public bool Init(PlayerInfo playerInfo)
-    {
-        if (playerInfo == null) return false;
-
-        Info = playerInfo;
-
-        Anima = GetComponent<Animator>();
-        Parts = GetComponent<PlayerParts>();
-
-        return true;
+        m_Data = new PlayerInfo();
+        m_Parts = GetComponent<PlayerParts>();
+        m_PlayerController = GetComponent<PlayerController>();
+        //m_WeapoonBattle = GetComponent<Weapon_Battle>();
+        m_StratagemController = GetComponent<StratagemController>();
     }
 
     // Use this for initialization
     private void Start()
     {
-        Camera.main.GetComponent<CameraController>().m_Player = this.transform;
     }
 
     // Update is called once per frame
     private void Update()
     {
     }
+
+    #endregion MonoBehaviour
 }
